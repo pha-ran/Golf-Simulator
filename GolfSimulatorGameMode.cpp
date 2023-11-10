@@ -2,6 +2,10 @@
 
 #include "GolfSimulatorGameMode.h"
 #include "GolfSimulatorCharacter.h"
+#include "GolfSimulatorGameState.h"
+#include "GolfSimulatorHUD.h"
+#include "GolfSimulatorPlayerController.h"
+#include "GolfSimulatorPlayerState.h"
 #include "UObject/ConstructorHelpers.h"
 
 AGolfSimulatorGameMode::AGolfSimulatorGameMode()
@@ -11,5 +15,10 @@ AGolfSimulatorGameMode::AGolfSimulatorGameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+
+		GameStateClass = AGolfSimulatorGameState::StaticClass();
+		HUDClass = AGolfSimulatorHUD::StaticClass();
+		PlayerControllerClass = AGolfSimulatorPlayerController::StaticClass();
+		PlayerStateClass = AGolfSimulatorPlayerState::StaticClass();
 	}
 }
