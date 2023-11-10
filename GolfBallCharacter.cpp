@@ -27,8 +27,8 @@ AGolfBallCharacter::AGolfBallCharacter()
 	if (DefaultMesh.Succeeded())
 	{
 		StaticMesh->SetStaticMesh(DefaultMesh.Object);
-		StaticMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -7.25f));
-		StaticMesh->SetRelativeScale3D(FVector(0.125f, 0.125f, 0.125f));
+		StaticMesh->SetRelativeLocation(FVector(0.0f, 0.0f, -2.5f));
+		StaticMesh->SetRelativeScale3D(FVector(0.05f, 0.05f, 0.05f));
 	}
 
 	StaticMesh->SetSimulatePhysics(false);
