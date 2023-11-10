@@ -32,3 +32,8 @@ void AGolfBallProjectile::SetupPlayerInputComponent(UInputComponent* PlayerInput
 
 }
 
+void AGolfBallProjectile::Setup(FVector& Direction, float Speed)
+{
+	;
+}
+

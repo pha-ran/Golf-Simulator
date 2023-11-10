@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GolfBallCharacter.h"
+#include "GolfBallProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -8,6 +9,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AGolfBallCharacter::AGolfBallCharacter()
@@ -47,6 +50,26 @@ AGolfBallCharacter::AGolfBallCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	static ConstructorHelpers::FClassFinder<APawn> GolfBallProjectileBP(TEXT("/Game/ThirdPerson/Blueprints/BP_GolfBallProjectile"));
+
+	if (GolfBallProjectileBP.Class != NULL)
+	{
+		GolfBallProjectileBPClass = GolfBallProjectileBP.Class;
+	}
+
+	SwingRate = 1.0f;
+	bIsSwung = false;
+
+	MaxAngle = 75.0f;
+	MinAngle = 0.0f;
+	Angle = 0.0f;
+	DeltaAngle = 2.5f;
+
+	MaxSpeed = 6000.0f;
+	MinSpeed = 100.0f;
+	Speed = 0.0f;
+	DeltaSpeed = 100.0f;
 }
 
 void AGolfBallCharacter::Look(const FInputActionValue& Value)
@@ -62,6 +85,76 @@ void AGolfBallCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void AGolfBallCharacter::Swing(const FInputActionValue& Value)
+{
+	bool IsPressed = Value.Get<bool>();
+
+	if (IsPressed)
+	{
+		StartSwing();
+
+		UE_LOG(LogTemp, Display, TEXT("Swing"));
+	}
+}
+
+void AGolfBallCharacter::Predict(const FInputActionValue& Value)
+{
+	bool IsPressed = Value.Get<bool>();
+
+	if (IsPressed)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Predict"));
+	}
+}
+
+void AGolfBallCharacter::AngleUp(const FInputActionValue& Value)
+{
+	bool IsPressed = Value.Get<bool>();
+
+	if (IsPressed && Angle <= (MaxAngle - DeltaAngle))
+	{
+		Angle += DeltaAngle;
+
+		UE_LOG(LogTemp, Display, TEXT("AngleUp %f"), Angle);
+	}
+}
+
+void AGolfBallCharacter::AngleDown(const FInputActionValue& Value)
+{
+	bool IsPressed = Value.Get<bool>();
+
+	if (IsPressed && Angle >= (MinAngle + DeltaAngle))
+	{
+		Angle -= DeltaAngle;
+
+		UE_LOG(LogTemp, Display, TEXT("AngleDown %f"), Angle);
+	}
+}
+
+void AGolfBallCharacter::SpeedUp(const FInputActionValue& Value)
+{
+	bool IsPressed = Value.Get<bool>();
+
+	if (IsPressed && Speed <= (MaxSpeed - DeltaSpeed))
+	{
+		Speed += DeltaSpeed;
+
+		UE_LOG(LogTemp, Display, TEXT("SpeedUp %f"), Speed);
+	}
+}
+
+void AGolfBallCharacter::SpeedDown(const FInputActionValue& Value)
+{
+	bool IsPressed = Value.Get<bool>();
+
+	if (IsPressed && Speed >= (MinSpeed + DeltaSpeed))
+	{
+		Speed -= DeltaSpeed;
+
+		UE_LOG(LogTemp, Display, TEXT("SpeedDown %f"), Speed);
+	}
+}
+
 // Called when the game starts or when spawned
 void AGolfBallCharacter::BeginPlay()
 {
@@ -74,6 +167,50 @@ void AGolfBallCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+	}
+}
+
+void AGolfBallCharacter::StartSwing()
+{
+	if (!bIsSwung)
+	{
+		bIsSwung = true;
+
+		UWorld* World = GetWorld();
+		World->GetTimerManager().SetTimer(SwingTimer, this, &AGolfBallCharacter::StopSwing, SwingRate, false);
+
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+
+		SpawnProjectile(CameraRotation, Angle, Speed);
+	}
+}
+
+void AGolfBallCharacter::StopSwing()
+{
+	bIsSwung = false;
+}
+
+void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation, double _Angle, float _Speed)
+{
+	FVector SpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, 0.0f, 0.0f));
+	FRotator SpawnRotation = _CameraRotation;
+
+	SpawnRotation.Pitch += _Angle;
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = GetInstigator();
+	SpawnParameters.Owner = this;
+
+	AGolfBallProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AGolfBallProjectile>(GolfBallProjectileBPClass, SpawnLocation, SpawnRotation, SpawnParameters);
+
+	if (SpawnedProjectile)
+	{
+		FVector Direction = SpawnRotation.Vector();
+		SpawnedProjectile->Setup(Direction, _Speed);
+		
+		SetActorHiddenInGame(true);
 	}
 }
 
@@ -93,6 +230,24 @@ void AGolfBallCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::Look);
+
+		//스윙
+		EnhancedInputComponent->BindAction(SwingAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::Swing);
+
+		//예상 경로
+		EnhancedInputComponent->BindAction(PredictAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::Predict);
+
+		//세로 각도 증가
+		EnhancedInputComponent->BindAction(AngleUpAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::AngleUp);
+
+		//세로 각도 감소
+		EnhancedInputComponent->BindAction(AngleDownAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::AngleDown);
+
+		//스윙 속도 증가
+		EnhancedInputComponent->BindAction(SpeedUpAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::SpeedUp);
+
+		//스윙 속도 감소
+		EnhancedInputComponent->BindAction(SpeedDownAction, ETriggerEvent::Triggered, this, &AGolfBallCharacter::SpeedDown);
 	}
 }
 
