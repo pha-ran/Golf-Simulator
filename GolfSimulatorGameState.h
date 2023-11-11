@@ -13,5 +13,20 @@ UCLASS()
 class GOLFSIMULATOR_API AGolfSimulatorGameState : public AGameStateBase
 {
 	GENERATED_BODY()
+
+public:
+	AGolfSimulatorGameState();
+
+protected:
+	UPROPERTY(Replicated)
+	int CurrentTurn;
+
+public:
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+public:
+	FORCEINLINE int GetCurrentTurn() const { return CurrentTurn; }
+
+	void NextTurn();
 	
 };

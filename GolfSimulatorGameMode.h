@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GolfSimulatorGameState.h"
 #include "GameFramework/GameModeBase.h"
 #include "GolfSimulatorGameMode.generated.h"
 
@@ -13,6 +14,17 @@ class AGolfSimulatorGameMode : public AGameModeBase
 
 public:
 	AGolfSimulatorGameMode();
+
+protected:
+	AGolfSimulatorGameState* GolfSimulatorGameState;
+
+	int Turn;
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void OnPostLogin(AController* NewPlayer) override;
+
 };
 
 

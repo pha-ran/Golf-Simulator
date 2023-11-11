@@ -104,6 +104,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
 	float DeltaSpeed;
 
+	UPROPERTY(Replicated)
+	bool bSwingIgnore;
+
 protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -149,5 +152,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+public:
+	void SetSwingIgnore(bool Ignore);
 
 };

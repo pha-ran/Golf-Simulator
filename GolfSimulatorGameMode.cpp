@@ -21,4 +21,31 @@ AGolfSimulatorGameMode::AGolfSimulatorGameMode()
 		PlayerControllerClass = AGolfSimulatorPlayerController::StaticClass();
 		PlayerStateClass = AGolfSimulatorPlayerState::StaticClass();
 	}
+
+	Turn = 1;
+}
+
+void AGolfSimulatorGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GolfSimulatorGameState = Cast<AGolfSimulatorGameState>(GameState);
+}
+
+void AGolfSimulatorGameMode::OnPostLogin(AController* NewPlayer)
+{
+	Super::OnPostLogin(NewPlayer);
+
+	AGolfSimulatorPlayerState* GolfSimulatorPlayerState = Cast<AGolfSimulatorPlayerState>(NewPlayer->PlayerState);
+
+	if (GolfSimulatorPlayerState != nullptr)
+	{
+		GolfSimulatorPlayerState->SetPlayerTurn(Turn);
+		Turn++;
+	}
+
+	if (GolfSimulatorGameState != nullptr && GolfSimulatorGameState->PlayerArray.Num() == 4 && GolfSimulatorGameState->GetCurrentTurn() == 0)
+	{
+		GolfSimulatorGameState->NextTurn();
+	}
 }

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "GolfBallProjectile.h"
+#include "GolfSimulatorGameState.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -95,8 +96,14 @@ void AGolfBallProjectile::Tick(float DeltaTime)
 
 	if (HasAuthority() && !IsStop && ProjectileMovementComponent->Velocity.IsNearlyZero())
 	{
-		IsStop = true;
-		Destroy();
+		AGolfSimulatorGameState* GolfSimulatorGameState = Cast<AGolfSimulatorGameState>(GetWorld()->GetGameState());
+
+		if (GolfSimulatorGameState != nullptr)
+		{
+			IsStop = true;
+			GolfSimulatorGameState->NextTurn();
+			Destroy();
+		}
 	}
 
 	if (!HasAuthority())

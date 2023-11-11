@@ -70,6 +70,8 @@ AGolfBallCharacter::AGolfBallCharacter()
 	MinSpeed = 100.0f;
 	Speed = 0.0f;
 	DeltaSpeed = 100.0f;
+
+	bSwingIgnore = true;
 }
 
 void AGolfBallCharacter::Look(const FInputActionValue& Value)
@@ -87,6 +89,11 @@ void AGolfBallCharacter::Look(const FInputActionValue& Value)
 
 void AGolfBallCharacter::Swing(const FInputActionValue& Value)
 {
+	if (bSwingIgnore)
+	{
+		return;
+	}
+
 	bool IsPressed = Value.Get<bool>();
 
 	if (IsPressed)
@@ -99,6 +106,11 @@ void AGolfBallCharacter::Swing(const FInputActionValue& Value)
 
 void AGolfBallCharacter::Predict(const FInputActionValue& Value)
 {
+	if (bSwingIgnore)
+	{
+		return;
+	}
+
 	bool IsPressed = Value.Get<bool>();
 
 	if (IsPressed)
@@ -109,6 +121,11 @@ void AGolfBallCharacter::Predict(const FInputActionValue& Value)
 
 void AGolfBallCharacter::AngleUp(const FInputActionValue& Value)
 {
+	if (bSwingIgnore)
+	{
+		return;
+	}
+
 	bool IsPressed = Value.Get<bool>();
 
 	if (IsPressed && Angle <= (MaxAngle - DeltaAngle))
@@ -121,6 +138,11 @@ void AGolfBallCharacter::AngleUp(const FInputActionValue& Value)
 
 void AGolfBallCharacter::AngleDown(const FInputActionValue& Value)
 {
+	if (bSwingIgnore)
+	{
+		return;
+	}
+
 	bool IsPressed = Value.Get<bool>();
 
 	if (IsPressed && Angle >= (MinAngle + DeltaAngle))
@@ -133,6 +155,11 @@ void AGolfBallCharacter::AngleDown(const FInputActionValue& Value)
 
 void AGolfBallCharacter::SpeedUp(const FInputActionValue& Value)
 {
+	if (bSwingIgnore)
+	{
+		return;
+	}
+
 	bool IsPressed = Value.Get<bool>();
 
 	if (IsPressed && Speed <= (MaxSpeed - DeltaSpeed))
@@ -145,6 +172,11 @@ void AGolfBallCharacter::SpeedUp(const FInputActionValue& Value)
 
 void AGolfBallCharacter::SpeedDown(const FInputActionValue& Value)
 {
+	if (bSwingIgnore)
+	{
+		return;
+	}
+
 	bool IsPressed = Value.Get<bool>();
 
 	if (IsPressed && Speed >= (MinSpeed + DeltaSpeed))
@@ -174,6 +206,7 @@ void AGolfBallCharacter::StartSwing()
 {
 	if (!bIsSwung)
 	{
+		bSwingIgnore = true;
 		bIsSwung = true;
 
 		UWorld* World = GetWorld();
@@ -219,6 +252,18 @@ void AGolfBallCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AGolfBallCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AGolfBallCharacter, bSwingIgnore);
+}
+
+void AGolfBallCharacter::SetSwingIgnore(bool Ignore)
+{
+	bSwingIgnore = Ignore;
 }
 
 // Called to bind functionality to input
