@@ -72,6 +72,12 @@ AGolfBallCharacter::AGolfBallCharacter()
 	DeltaSpeed = 100.0f;
 
 	bSwingIgnore = true;
+
+	NextLocationX = 1000.0f;
+	NextLocationY = 500.0f;
+	NextLocationZ = 0.0f;
+
+	SetActorHiddenInGame(true);
 }
 
 void AGolfBallCharacter::Look(const FInputActionValue& Value)
@@ -259,11 +265,31 @@ void AGolfBallCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGolfBallCharacter, bSwingIgnore);
+
+	DOREPLIFETIME(AGolfBallCharacter, NextLocationX);
+	DOREPLIFETIME(AGolfBallCharacter, NextLocationY);
+	DOREPLIFETIME(AGolfBallCharacter, NextLocationZ);
 }
 
 void AGolfBallCharacter::SetSwingIgnore(bool Ignore)
 {
 	bSwingIgnore = Ignore;
+}
+
+void AGolfBallCharacter::SetNextLocation(FVector _Location)
+{
+	if (HasAuthority())
+	{
+		NextLocationX = _Location.X;
+		NextLocationY = _Location.Y;
+		NextLocationZ = _Location.Z;
+	}
+}
+
+void AGolfBallCharacter::MoveNextLocation_Implementation(FVector _Location)
+{
+	SetActorLocation(_Location);
+	SetActorHiddenInGame(false);
 }
 
 // Called to bind functionality to input

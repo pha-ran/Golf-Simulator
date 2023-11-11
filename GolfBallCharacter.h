@@ -107,6 +107,15 @@ protected:
 	UPROPERTY(Replicated)
 	bool bSwingIgnore;
 
+	UPROPERTY(Replicated)
+	double NextLocationX;
+
+	UPROPERTY(Replicated)
+	double NextLocationY;
+
+	UPROPERTY(Replicated)
+	double NextLocationZ;
+
 protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -157,5 +166,12 @@ public:
 
 public:
 	void SetSwingIgnore(bool Ignore);
+
+	FORCEINLINE FVector GetNextLocation() const { return FVector(NextLocationX, NextLocationY, NextLocationZ); }
+
+	void SetNextLocation(FVector _Location);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MoveNextLocation(FVector _Location);
 
 };

@@ -45,6 +45,7 @@ void AGolfSimulatorGameState::NextTurn()
 			if (CurrentTurn < GolfSimulatorPlayerState->GetPlayerTurn())
 			{
 				CurrentTurn = GolfSimulatorPlayerState->GetPlayerTurn();
+				GolfBallCharacter->MoveNextLocation(GolfBallCharacter->GetNextLocation());
 				GolfBallCharacter->SetSwingIgnore(false);
 				UE_LOG(LogTemp, Display, TEXT("NextTurn %d"), CurrentTurn);
 				return;
@@ -58,6 +59,7 @@ void AGolfSimulatorGameState::NextTurn()
 	if (GolfBallCharacter != nullptr && GolfSimulatorPlayerState != nullptr)
 	{
 		CurrentTurn = GolfSimulatorPlayerState->GetPlayerTurn();
+		GolfBallCharacter->MoveNextLocation(GolfBallCharacter->GetNextLocation());
 		GolfBallCharacter->SetSwingIgnore(false);
 		UE_LOG(LogTemp, Display, TEXT("NextTurn %d"), CurrentTurn);
 	}
