@@ -7,6 +7,8 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "UObject/ConstructorHelpers.h"
@@ -51,6 +53,14 @@ AGolfBallCharacter::AGolfBallCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
+	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
+	ProjectileMovementComponent->SetUpdatedComponent(RootComponent);
+	ProjectileMovementComponent->InitialSpeed = 0.0f;
+	ProjectileMovementComponent->MaxSpeed = 0.0f;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.0f;
+	ProjectileMovementComponent->bShouldBounce = false;
+	ProjectileMovementComponent->bSimulationEnabled = false;
+
 	static ConstructorHelpers::FClassFinder<APawn> GolfBallProjectileBP(TEXT("/Game/ThirdPerson/Blueprints/BP_GolfBallProjectile"));
 
 	if (GolfBallProjectileBP.Class != NULL)
@@ -61,21 +71,21 @@ AGolfBallCharacter::AGolfBallCharacter()
 	SwingRate = 1.0f;
 	bIsSwung = false;
 
-	MaxAngle = 75.0f;
+	MaxAngle = 50.0f;
 	MinAngle = 0.0f;
 	Angle = 0.0f;
 	DeltaAngle = 2.5f;
 
-	MaxSpeed = 6000.0f;
+	MaxSpeed = 4000.0f;
 	MinSpeed = 100.0f;
 	Speed = 0.0f;
 	DeltaSpeed = 100.0f;
 
 	bSwingIgnore = true;
 
-	NextLocationX = 1000.0f;
-	NextLocationY = 500.0f;
-	NextLocationZ = 0.0f;
+	NextLocationX = -11710.0f;
+	NextLocationY = 14130.0f;
+	NextLocationZ = 334.236f;
 
 	SetActorHiddenInGame(true);
 }
@@ -236,7 +246,7 @@ void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation
 	FVector SpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, 0.0f, 0.0f));
 	FRotator SpawnRotation = _CameraRotation;
 
-	SpawnRotation.Pitch += _Angle;
+	SpawnRotation.Pitch = _Angle;
 
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = GetInstigator();

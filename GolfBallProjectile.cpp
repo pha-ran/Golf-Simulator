@@ -18,13 +18,14 @@ AGolfBallProjectile::AGolfBallProjectile()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SetReplicates(true);
 	bReplicates = true;
 
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
 	SphereComponent->InitSphereRadius(2.5f);
 	SphereComponent->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+	SphereComponent->SetIsReplicated(true);
 	RootComponent = SphereComponent;
-	RootComponent->SetIsReplicated(true);
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultMesh(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -61,12 +62,12 @@ AGolfBallProjectile::AGolfBallProjectile()
 	if (HasAuthority())
 	{
 		ProjectileMovementComponent->InitialSpeed = 100.0f;
-		ProjectileMovementComponent->MaxSpeed = 6000.0f;
+		ProjectileMovementComponent->MaxSpeed = 4000.0f;
+		ProjectileMovementComponent->bSimulationEnabled = true;
 		ProjectileMovementComponent->ProjectileGravityScale = 1.0f;
 		ProjectileMovementComponent->bShouldBounce = true;
-		ProjectileMovementComponent->bSimulationEnabled = true;
-		ProjectileMovementComponent->Bounciness = 0.3;
-		ProjectileMovementComponent->Friction = 0.1f;
+		ProjectileMovementComponent->Bounciness = 0.125;
+		ProjectileMovementComponent->Friction = 0.75f;
 		ProjectileMovementComponent->BounceVelocityStopSimulatingThreshold = 0.0f;
 	}
 
