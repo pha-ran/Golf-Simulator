@@ -69,7 +69,7 @@ AGolfBallProjectile::AGolfBallProjectile()
 		ProjectileMovementComponent->ProjectileGravityScale = 1.0f;
 		ProjectileMovementComponent->bShouldBounce = true;
 		ProjectileMovementComponent->Bounciness = 0.125;
-		ProjectileMovementComponent->Friction = 0.75f;
+		ProjectileMovementComponent->Friction = 0.25f;
 		ProjectileMovementComponent->BounceVelocityStopSimulatingThreshold = 0.0f;
 	}
 

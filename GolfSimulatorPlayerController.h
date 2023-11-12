@@ -6,12 +6,22 @@
 #include "GameFramework/PlayerController.h"
 #include "GolfSimulatorPlayerController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class GOLFSIMULATOR_API AGolfSimulatorPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	AGolfSimulatorPlayerController();
+
+protected:
+	virtual void BeginPlay() override;
+
+	TSubclassOf<class UInGameUserWidget> InGameUserWidgetBlueprint;
+
+	class UInGameUserWidget* InGameUserWidget;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+
 };
