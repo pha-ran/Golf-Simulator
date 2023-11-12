@@ -39,9 +39,15 @@ protected:
 	UPROPERTY(Replicated)
 	bool IsStop;
 
+	UPROPERTY(Replicated)
+	bool InHole;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+protected:
+	void EndTurn();
 
 public:	
 	// Called every frame

@@ -74,6 +74,7 @@ AGolfBallProjectile::AGolfBallProjectile()
 	}
 
 	IsStop = false;
+	InHole = false;
 }
 
 // Called when the game starts or when spawned
@@ -87,9 +88,23 @@ void AGolfBallProjectile::BeginPlay()
 
 		if (PlayerController != nullptr)
 		{
-			PlayerController->SetControlRotation(GetActorRotation());
+			FRotator Rotator = GetActorRotation();
+			Rotator.Pitch = -30.0f;
+			PlayerController->SetControlRotation(Rotator);
 			PlayerController->SetViewTargetWithBlend(this, 0.5f, EViewTargetBlendFunction::VTBlend_Linear, 1.0f, false);
 		}
+	}
+}
+
+void AGolfBallProjectile::EndTurn()
+{
+	AGolfSimulatorGameState* GolfSimulatorGameState = Cast<AGolfSimulatorGameState>(GetWorld()->GetGameState());
+
+	if (GolfSimulatorGameState != nullptr)
+	{
+		GolfSimulatorGameState->NextTurn();
+
+		Destroy();
 	}
 }
 
@@ -98,17 +113,18 @@ void AGolfBallProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HasAuthority() && !IsStop && ProjectileMovementComponent->Velocity.IsNearlyZero())
+	if (HasAuthority() && !IsStop && !InHole && ProjectileMovementComponent->Velocity.IsNearlyZero())
 	{
 		AGolfBallCharacter* GolfBallCharacter = Cast<AGolfBallCharacter>(GetOwner());
-		AGolfSimulatorGameState* GolfSimulatorGameState = Cast<AGolfSimulatorGameState>(GetWorld()->GetGameState());
 
-		if (GolfBallCharacter != nullptr && GolfSimulatorGameState != nullptr)
+		if (GolfBallCharacter != nullptr)
 		{
 			IsStop = true;
+
 			GolfBallCharacter->SetNextLocation(GetActorLocation());
-			GolfSimulatorGameState->NextTurn();
-			Destroy();
+			
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfBallProjectile::EndTurn, 3.0f, false);
 		}
 	}
 
@@ -142,6 +158,7 @@ void AGolfBallProjectile::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AGolfBallProjectile, IsStop);
+	DOREPLIFETIME(AGolfBallProjectile, InHole);
 }
 
 void AGolfBallProjectile::Setup(FVector& Direction, float Speed)
@@ -151,6 +168,8 @@ void AGolfBallProjectile::Setup(FVector& Direction, float Speed)
 
 void AGolfBallProjectile::OnHoleBeginOverlap()
 {
+	InHole = true;
+
 	AGolfBallCharacter* GolfBallCharacter = Cast<AGolfBallCharacter>(GetOwner());
 
 	if (GolfBallCharacter != nullptr)
@@ -159,7 +178,9 @@ void AGolfBallProjectile::OnHoleBeginOverlap()
 
 		if (PlayerController != nullptr)
 		{
-			UE_LOG(LogTemp, Display, TEXT("OnHoleBeginOverlap %s"), *(PlayerController->PlayerState->GetPlayerName()));
+			UE_LOG(LogTemp, Display, TEXT("OnHoleBeginOverlap Player %s"), *(PlayerController->PlayerState->GetPlayerName()));
+			
+			EndTurn();
 		}
 	}
 }
