@@ -3,6 +3,8 @@
 #include "GolfBallProjectile.h"
 #include "GolfBallCharacter.h"
 #include "GolfSimulatorGameState.h"
+#include "GolfSimulatorPlayerController.h"
+#include "GolfSimulatorPlayerState.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
@@ -147,3 +149,17 @@ void AGolfBallProjectile::Setup(FVector& Direction, float Speed)
 	ProjectileMovementComponent->Velocity = Direction * (ProjectileMovementComponent->InitialSpeed + Speed);
 }
 
+void AGolfBallProjectile::OnHoleBeginOverlap()
+{
+	AGolfBallCharacter* GolfBallCharacter = Cast<AGolfBallCharacter>(GetOwner());
+
+	if (GolfBallCharacter != nullptr)
+	{
+		AGolfSimulatorPlayerController* PlayerController = GolfBallCharacter->GetController<AGolfSimulatorPlayerController>();
+
+		if (PlayerController != nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("OnHoleBeginOverlap %s"), *(PlayerController->PlayerState->GetPlayerName()));
+		}
+	}
+}

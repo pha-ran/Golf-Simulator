@@ -55,4 +55,5 @@ public:
 public:
 	void Setup(FVector& Direction, float Speed);
 
+	void OnHoleBeginOverlap();
 };
