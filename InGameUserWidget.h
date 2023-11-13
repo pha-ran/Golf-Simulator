@@ -15,10 +15,30 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UTextBlock* PlayerName;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* Turn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* Distance;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* Speed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* Angle;
+
 protected:
 	virtual void NativeOnInitialized() override;
 
 public:
-	void SetPlayerNameText(FString _Name);
+	void SetPlayerNameText(int _PlayerTurn);
+
+	void SetTurnText(int _Turn);
+
+	void SetDistanceText(double _Distance);
+
+	void SetSpeedText(float _Speed);
+
+	void SetAngleText(double _Angle);
 	
 };

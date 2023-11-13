@@ -177,4 +177,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MoveNextLocation(FVector _Location);
 
+	FORCEINLINE float GetSpeed() const { return Speed; }
+
+	FORCEINLINE double GetAngle() const { return Angle; }
+
 };

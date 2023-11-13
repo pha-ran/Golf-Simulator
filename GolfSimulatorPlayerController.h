@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GolfBallCharacter.h"
+#include "GolfSimulatorGameState.h"
+#include "GolfSimulatorPlayerState.h"
 #include "GolfSimulatorPlayerController.generated.h"
 
 UCLASS()
@@ -15,13 +18,24 @@ public:
 	AGolfSimulatorPlayerController();
 
 protected:
-	virtual void BeginPlay() override;
-
 	TSubclassOf<class UInGameUserWidget> InGameUserWidgetBlueprint;
 
 	class UInGameUserWidget* InGameUserWidget;
 
+	AGolfBallCharacter* GolfBallCharacter;
+
+	AGolfSimulatorGameState* GolfSimulatorGameState;
+
+	AGolfSimulatorPlayerState* GolfSimulatorPlayerState;
+
+protected:
+	virtual void BeginPlay() override;
+
 public:
 	virtual void Tick(float DeltaTime) override;
+
+public:
+	UFUNCTION(Client, Reliable)
+	void Initialize();
 
 };

@@ -36,7 +36,13 @@ void AGolfSimulatorGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
 
+	AGolfSimulatorPlayerController* GolfSimulatorPlayerController = Cast<AGolfSimulatorPlayerController>(NewPlayer);
 	AGolfSimulatorPlayerState* GolfSimulatorPlayerState = Cast<AGolfSimulatorPlayerState>(NewPlayer->PlayerState);
+
+	if (GolfSimulatorPlayerController != nullptr)
+	{
+		GolfSimulatorPlayerController->Initialize();
+	}
 
 	if (GolfSimulatorPlayerState != nullptr)
 	{
