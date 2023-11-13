@@ -119,6 +119,15 @@ protected:
 	UPROPERTY(Replicated)
 	double NextLocationZ;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
+	FVector PredictSpawnLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
+	FVector PredictVelocity;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
+	bool bPredict;
+
 protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);

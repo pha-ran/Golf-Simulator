@@ -88,6 +88,8 @@ AGolfBallCharacter::AGolfBallCharacter()
 	NextLocationZ = 334.236f;
 
 	SetActorHiddenInGame(true);
+
+	bPredict = false;
 }
 
 void AGolfBallCharacter::Look(const FInputActionValue& Value)
@@ -131,6 +133,8 @@ void AGolfBallCharacter::Predict(const FInputActionValue& Value)
 
 	if (IsPressed)
 	{
+		bPredict = !bPredict;
+
 		UE_LOG(LogTemp, Display, TEXT("Predict"));
 	}
 }
@@ -224,6 +228,7 @@ void AGolfBallCharacter::StartSwing()
 	{
 		bSwingIgnore = true;
 		bIsSwung = true;
+		bPredict = false;
 
 		UWorld* World = GetWorld();
 		World->GetTimerManager().SetTimer(SwingTimer, this, &AGolfBallCharacter::StopSwing, SwingRate, false);
@@ -268,6 +273,18 @@ void AGolfBallCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!HasAuthority())
+	{
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+		PredictSpawnLocation = GetActorLocation() + FTransform(CameraRotation).TransformVector(FVector(0.0f, 0.0f, 0.0f));
+		
+		FRotator SpawnRotation = CameraRotation;
+		SpawnRotation.Pitch = Angle;
+		FVector Direction = SpawnRotation.Vector();
+		PredictVelocity = Direction * (Speed + 100.0f);
+	}
 }
 
 void AGolfBallCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
