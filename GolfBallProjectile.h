@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "NiagaraComponent.h"
 #include "GolfBallProjectile.generated.h"
 
 UCLASS()
@@ -35,6 +36,12 @@ protected:
 	// 투사체 움직임 처리
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UNiagaraComponent* NiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UNiagaraSystem* NiagaraSystemAssetObject;
 
 	UPROPERTY(Replicated)
 	bool IsStop;

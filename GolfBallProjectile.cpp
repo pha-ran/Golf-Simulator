@@ -13,6 +13,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Net/UnrealNetwork.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AGolfBallProjectile::AGolfBallProjectile()
@@ -73,6 +75,12 @@ AGolfBallProjectile::AGolfBallProjectile()
 		ProjectileMovementComponent->BounceVelocityStopSimulatingThreshold = 0.0f;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraSystemAsset(TEXT("/Game/ThirdPerson/Blueprints/GolfBallNiagaraSystem"));
+	if (NiagaraSystemAsset.Succeeded())
+	{
+		NiagaraSystemAssetObject = NiagaraSystemAsset.Object;
+	}
+
 	IsStop = false;
 	InHole = false;
 }
@@ -84,6 +92,17 @@ void AGolfBallProjectile::BeginPlay()
 	
 	if (!HasAuthority())
 	{
+		NiagaraComponent = NewObject<UNiagaraComponent>(this);
+
+		if (NiagaraComponent != nullptr && NiagaraSystemAssetObject != nullptr)
+		{
+			NiagaraComponent->SetupAttachment(SphereComponent);
+			NiagaraComponent->SetAsset(NiagaraSystemAssetObject);
+			NiagaraComponent->SetAutoActivate(true);
+			NiagaraComponent->RegisterComponent();
+			NiagaraComponent->Activate();
+		}
+
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 		if (PlayerController != nullptr)
