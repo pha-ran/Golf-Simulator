@@ -49,6 +49,11 @@ AGolfSimulatorCharacter::AGolfSimulatorCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCapsuleComponent()->SetSimulatePhysics(false);
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetSimulatePhysics(false);
 }
 
 void AGolfSimulatorCharacter::BeginPlay()
@@ -63,6 +68,17 @@ void AGolfSimulatorCharacter::BeginPlay()
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
+	}
+
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 5.0f, false);
+}
+
+void AGolfSimulatorCharacter::EndTurn()
+{
+	if (HasAuthority())
+	{
+		Destroy();
 	}
 }
 

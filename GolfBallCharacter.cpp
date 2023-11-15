@@ -2,6 +2,7 @@
 
 #include "GolfBallCharacter.h"
 #include "GolfBallProjectile.h"
+#include "GolfSimulatorCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -33,8 +34,8 @@ AGolfBallCharacter::AGolfBallCharacter()
 		StaticMesh->SetRelativeScale3D(FVector(0.05f, 0.05f, 0.05f));
 	}
 
-	StaticMesh->SetSimulatePhysics(false);
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	StaticMesh->SetSimulatePhysics(false);
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -68,6 +69,13 @@ AGolfBallCharacter::AGolfBallCharacter()
 		GolfBallProjectileBPClass = GolfBallProjectileBP.Class;
 	}
 
+	static ConstructorHelpers::FClassFinder<APawn> GolfSimulatorCharacterBP(TEXT("/Game/ThirdPerson/Blueprints/BP_ThirdPersonCharacter"));
+
+	if (GolfSimulatorCharacterBP.Class != NULL)
+	{
+		GolfSimulatorCharacterBPClass = GolfSimulatorCharacterBP.Class;
+	}
+
 	SwingRate = 1.0f;
 	bIsSwung = false;
 
@@ -83,9 +91,9 @@ AGolfBallCharacter::AGolfBallCharacter()
 
 	bSwingIgnore = true;
 
-	NextLocationX = -11710.0f;
-	NextLocationY = 14130.0f;
-	NextLocationZ = 334.236f;
+	NextLocationX = -11710.0f; // -4450.003527f
+	NextLocationY = 14130.0f; // -1329.982854f
+	NextLocationZ = 334.236f; // 1812.528782f
 
 	SetActorHiddenInGame(true);
 
@@ -256,6 +264,16 @@ void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = GetInstigator();
 	SpawnParameters.Owner = this;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -100.0f, 0.0f));
+	CharacterSpawnLocation.Z += 90.0f;
+	FRotator CharacterSpawnRotator = _CameraRotation;
+	CharacterSpawnRotator.Pitch = 0.0f;
+	CharacterSpawnRotator.Yaw += 90.0f;
+
+	//GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfBallProjectile::, 3.0f, false);
+	AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
 
 	AGolfBallProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AGolfBallProjectile>(GolfBallProjectileBPClass, SpawnLocation, SpawnRotation, SpawnParameters);
 

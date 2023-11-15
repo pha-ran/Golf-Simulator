@@ -65,6 +65,8 @@ protected:
 
 	TSubclassOf<APawn> GolfBallProjectileBPClass;
 
+	TSubclassOf<APawn> GolfSimulatorCharacterBPClass;
+
 	/** 스윙 딜레이, 단위는 초. SpawnProjectile 을 입력에 직접 바인딩하지 않게 하는 역할 */
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	float SwingRate;
@@ -127,6 +129,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
 	bool bPredict;
+
+	FTimerHandle TimerHandle;
 
 protected:
 	/** Called for looking input */
