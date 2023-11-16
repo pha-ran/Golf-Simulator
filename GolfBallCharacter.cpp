@@ -14,6 +14,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 // Sets default values
 AGolfBallCharacter::AGolfBallCharacter()
@@ -89,7 +90,7 @@ AGolfBallCharacter::AGolfBallCharacter()
 	Speed = 0.0f;
 	DeltaSpeed = 100.0f;
 
-	bSwingIgnore = true;
+	bSwingIgnore = false;
 
 	NextLocationX = -11710.0f; // -4450.003527f
 	NextLocationY = 14130.0f; // -1329.982854f
@@ -245,13 +246,42 @@ void AGolfBallCharacter::StartSwing()
 		FRotator CameraRotation;
 		GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
-		SpawnProjectile(CameraRotation, Angle, Speed);
+		SpawnCharacter(CameraRotation, Angle, Speed);
 	}
 }
 
 void AGolfBallCharacter::StopSwing()
 {
 	bIsSwung = false;
+}
+
+void AGolfBallCharacter::SpawnCharacter_Implementation(FRotator _CameraRotation, double _Angle, float _Speed)
+{
+	FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -100.0f, 0.0f));
+	CharacterSpawnLocation.Z += 90.0f;
+	FRotator CharacterSpawnRotator = _CameraRotation;
+	CharacterSpawnRotator.Pitch = 0.0f;
+	CharacterSpawnRotator.Yaw += 30.0f;
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.Instigator = GetInstigator();
+	SpawnParameters.Owner = this;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+
+	if (GolfSimulatorCharacter != nullptr)
+	{
+		GolfSimulatorCharacter->SetAnimation1();
+
+		FTimerHandle TimerHandle;
+		FTimerDelegate TimerDelegate;
+
+		TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+
+		UWorld* World = GetWorld();
+		World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 3.0f, false);
+	}
 }
 
 void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation, double _Angle, float _Speed)
@@ -265,20 +295,6 @@ void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation
 	SpawnParameters.Instigator = GetInstigator();
 	SpawnParameters.Owner = this;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -100.0f, 0.0f));
-	CharacterSpawnLocation.Z += 90.0f;
-	FRotator CharacterSpawnRotator = _CameraRotation;
-	CharacterSpawnRotator.Pitch = 0.0f;
-	CharacterSpawnRotator.Yaw += 90.0f;
-
-	//GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfBallProjectile::, 3.0f, false);
-	AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
-	
-	if (GolfSimulatorCharacter != nullptr)
-	{
-		GolfSimulatorCharacter->SetAnimation1();
-	}
 
 	AGolfBallProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AGolfBallProjectile>(GolfBallProjectileBPClass, SpawnLocation, SpawnRotation, SpawnParameters);
 

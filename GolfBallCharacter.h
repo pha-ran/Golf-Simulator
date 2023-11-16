@@ -130,8 +130,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
 	bool bPredict;
 
-	FTimerHandle TimerHandle;
-
 protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -169,6 +167,9 @@ protected:
 	/** 스윙 종료 함수. 호출되면 플레이어가 StartSwing 을 다시 사용 가능 */
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void StopSwing();
+
+	UFUNCTION(Server, Reliable)
+	void SpawnCharacter(FRotator _CameraRotation, double _Angle, float _Speed);
 
 	/** 투사체를 스폰하는 서버 함수 */
 	UFUNCTION(Server, Reliable)
