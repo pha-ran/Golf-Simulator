@@ -274,6 +274,11 @@ void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation
 
 	//GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfBallProjectile::, 3.0f, false);
 	AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+	
+	if (GolfSimulatorCharacter != nullptr)
+	{
+		GolfSimulatorCharacter->SetAnimation1();
+	}
 
 	AGolfBallProjectile* SpawnedProjectile = GetWorld()->SpawnActor<AGolfBallProjectile>(GolfBallProjectileBPClass, SpawnLocation, SpawnRotation, SpawnParameters);
 

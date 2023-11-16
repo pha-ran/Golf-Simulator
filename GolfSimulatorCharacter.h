@@ -65,5 +65,13 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+public:
+	UFUNCTION(Server, Reliable)
+	void SetAnimation1();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayAnimation1();
+
 };
 

@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GolfSimulatorCharacter.h"
+#include "GolfAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -9,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Net/UnrealNetwork.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,6 +82,21 @@ void AGolfSimulatorCharacter::EndTurn()
 	{
 		Destroy();
 	}
+}
+
+void AGolfSimulatorCharacter::PlayAnimation1_Implementation()
+{
+	UGolfAnimInstance* GolfAnimInstance = Cast<UGolfAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (GolfAnimInstance != nullptr)
+	{
+		GolfAnimInstance->SetAnimation1();
+	}
+}
+
+void AGolfSimulatorCharacter::SetAnimation1_Implementation()
+{
+	PlayAnimation1();
 }
 
 //////////////////////////////////////////////////////////////////////////
