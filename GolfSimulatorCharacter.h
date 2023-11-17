@@ -39,7 +39,11 @@ class AGolfSimulatorCharacter : public ACharacter
 
 public:
 	AGolfSimulatorCharacter();
-	
+
+protected:
+	UStaticMesh* GolfClubObject;
+
+	UStaticMeshComponent* StaticMeshComponent;
 
 protected:
 

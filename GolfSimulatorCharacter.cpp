@@ -10,7 +10,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,16 @@ AGolfSimulatorCharacter::AGolfSimulatorCharacter()
 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetSimulatePhysics(false);
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GolfClub(TEXT("/Game/Assets/Golf/Meshes/SM_Golfprops_02"));
+
+	if (GolfClub.Succeeded())
+	{
+		GolfClubObject = GolfClub.Object;
+	}
+
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	StaticMeshComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, FName(TEXT("hand_r")));
 }
 
 void AGolfSimulatorCharacter::BeginPlay()
@@ -71,9 +83,6 @@ void AGolfSimulatorCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 5.0f, false);
 }
 
 void AGolfSimulatorCharacter::EndTurn()
@@ -86,6 +95,12 @@ void AGolfSimulatorCharacter::EndTurn()
 
 void AGolfSimulatorCharacter::PlayAnimation1_Implementation()
 {
+	if (GolfClubObject != nullptr && StaticMeshComponent != nullptr)
+	{
+		StaticMeshComponent->SetStaticMesh(GolfClubObject);
+		StaticMeshComponent->SetRelativeLocationAndRotation(FVector(-9.47789, 0.839751, 5.931521), FRotator(-12.952066, -82.371366, 149.13423));
+	}
+
 	UGolfAnimInstance* GolfAnimInstance = Cast<UGolfAnimInstance>(GetMesh()->GetAnimInstance());
 
 	if (GolfAnimInstance != nullptr)
@@ -96,6 +111,9 @@ void AGolfSimulatorCharacter::PlayAnimation1_Implementation()
 
 void AGolfSimulatorCharacter::SetAnimation1_Implementation()
 {
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 5.0f, false);
+
 	PlayAnimation1();
 }
 

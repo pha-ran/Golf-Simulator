@@ -80,7 +80,7 @@ AGolfBallCharacter::AGolfBallCharacter()
 	SwingRate = 1.0f;
 	bIsSwung = false;
 
-	MaxAngle = 50.0f;
+	MaxAngle = 60.0f;
 	MinAngle = 0.0f;
 	Angle = 0.0f;
 	DeltaAngle = 2.5f;
@@ -90,11 +90,11 @@ AGolfBallCharacter::AGolfBallCharacter()
 	Speed = 0.0f;
 	DeltaSpeed = 100.0f;
 
-	bSwingIgnore = false;
+	bSwingIgnore = true;
 
-	NextLocationX = -11710.0f; // -4450.003527f
-	NextLocationY = 14130.0f; // -1329.982854f
-	NextLocationZ = 334.236f; // 1812.528782f
+	NextLocationX = -4450.003527f;
+	NextLocationY = -1329.982854f;
+	NextLocationZ = 1812.528782f;
 
 	SetActorHiddenInGame(true);
 
@@ -261,7 +261,7 @@ void AGolfBallCharacter::SpawnCharacter_Implementation(FRotator _CameraRotation,
 	CharacterSpawnLocation.Z += 90.0f;
 	FRotator CharacterSpawnRotator = _CameraRotation;
 	CharacterSpawnRotator.Pitch = 0.0f;
-	CharacterSpawnRotator.Yaw += 30.0f;
+	CharacterSpawnRotator.Yaw = 30.0f;
 
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = GetInstigator();
