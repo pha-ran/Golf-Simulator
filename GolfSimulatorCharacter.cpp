@@ -59,11 +59,25 @@ AGolfSimulatorCharacter::AGolfSimulatorCharacter()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetSimulatePhysics(false);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> GolfClub(TEXT("/Game/Assets/Golf/Meshes/SM_Golfprops_02"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GolfClub02(TEXT("/Game/Assets/Golf/Meshes/SM_Golfprops_02"));
 
-	if (GolfClub.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GolfClub03(TEXT("/Game/Assets/Golf/Meshes/SM_Golfprops_03"));
+
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GolfClub04(TEXT("/Game/Assets/Golf/Meshes/SM_Golfprops_04"));
+
+	if (GolfClub02.Succeeded())
 	{
-		GolfClubObject = GolfClub.Object;
+		HybrideObject = GolfClub02.Object;
+	}
+
+	if (GolfClub03.Succeeded())
+	{
+		PutterObject = GolfClub03.Object;
+	}
+
+	if (GolfClub04.Succeeded())
+	{
+		IronObject = GolfClub04.Object;
 	}
 
 	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
@@ -93,11 +107,51 @@ void AGolfSimulatorCharacter::EndTurn()
 	}
 }
 
-void AGolfSimulatorCharacter::PlayAnimation1_Implementation()
+void AGolfSimulatorCharacter::SetDriverAnimation_Implementation()
 {
-	if (GolfClubObject != nullptr && StaticMeshComponent != nullptr)
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 4.0f, false);
+
+	PlayDriverAnimation();
+}
+
+void AGolfSimulatorCharacter::SetHybrideAnimation_Implementation()
+{
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 4.0f, false);
+
+	PlayHybrideAnimation();
+}
+
+void AGolfSimulatorCharacter::SetIronAnimation_Implementation()
+{
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 4.0f, false);
+
+	PlayIronAnimation();
+}
+
+void AGolfSimulatorCharacter::SetPutterAnimation_Implementation()
+{
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 3.0f, false);
+
+	PlayPutterAnimation();
+}
+
+void AGolfSimulatorCharacter::SetWedgeAnimation_Implementation()
+{
+	FTimerHandle TimerHandle;
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 11.0f, false);
+
+	PlayWedgeAnimation();
+}
+
+void AGolfSimulatorCharacter::PlayDriverAnimation_Implementation()
+{
+	if (HybrideObject != nullptr && StaticMeshComponent != nullptr)
 	{
-		StaticMeshComponent->SetStaticMesh(GolfClubObject);
+		StaticMeshComponent->SetStaticMesh(HybrideObject);
 		StaticMeshComponent->SetRelativeLocationAndRotation(FVector(-9.47789, 0.839751, 5.931521), FRotator(-12.952066, -82.371366, 149.13423));
 	}
 
@@ -105,16 +159,72 @@ void AGolfSimulatorCharacter::PlayAnimation1_Implementation()
 
 	if (GolfAnimInstance != nullptr)
 	{
-		GolfAnimInstance->SetAnimation1();
+		GolfAnimInstance->SetDriver();
 	}
 }
 
-void AGolfSimulatorCharacter::SetAnimation1_Implementation()
+void AGolfSimulatorCharacter::PlayHybrideAnimation_Implementation()
 {
-	FTimerHandle TimerHandle;
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfSimulatorCharacter::EndTurn, 5.0f, false);
+	if (HybrideObject != nullptr && StaticMeshComponent != nullptr)
+	{
+		StaticMeshComponent->SetStaticMesh(HybrideObject);
+		StaticMeshComponent->SetRelativeLocationAndRotation(FVector(-10.997305, 0.899521, 4.663407), FRotator(-8.648474, -84.965307, 139.621413));
+	}
 
-	PlayAnimation1();
+	UGolfAnimInstance* GolfAnimInstance = Cast<UGolfAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (GolfAnimInstance != nullptr)
+	{
+		GolfAnimInstance->SetHybride();
+	}
+}
+
+void AGolfSimulatorCharacter::PlayIronAnimation_Implementation()
+{
+	if (IronObject != nullptr && StaticMeshComponent != nullptr)
+	{
+		StaticMeshComponent->SetStaticMesh(IronObject);
+		StaticMeshComponent->SetRelativeLocationAndRotation(FVector(4.112263, 1.863093, -12.531529), FRotator(-62.241651, -141.779043, 152.125056));
+	}
+
+	UGolfAnimInstance* GolfAnimInstance = Cast<UGolfAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (GolfAnimInstance != nullptr)
+	{
+		GolfAnimInstance->SetIron();
+	}
+}
+
+void AGolfSimulatorCharacter::PlayPutterAnimation_Implementation()
+{
+	if (PutterObject != nullptr && StaticMeshComponent != nullptr)
+	{
+		StaticMeshComponent->SetStaticMesh(PutterObject);
+		StaticMeshComponent->SetRelativeLocationAndRotation(FVector(-1.778892, 6.11454, -5.067813), FRotator(-57.525185, -176.650659, -147.746515));
+	}
+
+	UGolfAnimInstance* GolfAnimInstance = Cast<UGolfAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (GolfAnimInstance != nullptr)
+	{
+		GolfAnimInstance->SetPutter();
+	}
+}
+
+void AGolfSimulatorCharacter::PlayWedgeAnimation_Implementation()
+{
+	if (IronObject != nullptr && StaticMeshComponent != nullptr)
+	{
+		StaticMeshComponent->SetStaticMesh(IronObject);
+		StaticMeshComponent->SetRelativeLocationAndRotation(FVector(2.680225, 5.119117, -4.531633), FRotator(-50.567415, 123.903952, -125.195479));
+	}
+
+	UGolfAnimInstance* GolfAnimInstance = Cast<UGolfAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (GolfAnimInstance != nullptr)
+	{
+		GolfAnimInstance->SetWedge();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -174,7 +284,3 @@ void AGolfSimulatorCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
-
-
-
-

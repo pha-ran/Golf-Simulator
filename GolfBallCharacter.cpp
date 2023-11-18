@@ -92,9 +92,9 @@ AGolfBallCharacter::AGolfBallCharacter()
 
 	bSwingIgnore = true;
 
-	NextLocationX = -4450.003527f;
-	NextLocationY = -1329.982854f;
-	NextLocationZ = 1812.528782f;
+	NextLocationX = -11710.0f;
+	NextLocationY = 14130.0f;
+	NextLocationZ = 338.236f;
 
 	SetActorHiddenInGame(true);
 
@@ -257,30 +257,140 @@ void AGolfBallCharacter::StopSwing()
 
 void AGolfBallCharacter::SpawnCharacter_Implementation(FRotator _CameraRotation, double _Angle, float _Speed)
 {
-	FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -100.0f, 0.0f));
-	CharacterSpawnLocation.Z += 90.0f;
-	FRotator CharacterSpawnRotator = _CameraRotation;
-	CharacterSpawnRotator.Pitch = 0.0f;
-	CharacterSpawnRotator.Yaw = 30.0f;
-
 	FActorSpawnParameters SpawnParameters;
 	SpawnParameters.Instigator = GetInstigator();
 	SpawnParameters.Owner = this;
 	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
-
-	if (GolfSimulatorCharacter != nullptr)
+	if (_Angle <= 5.0f)
 	{
-		GolfSimulatorCharacter->SetAnimation1();
+		// 퍼터
 
-		FTimerHandle TimerHandle;
-		FTimerDelegate TimerDelegate;
+		FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -80.0f, -5.0f)); // 퍼터 -80
+		CharacterSpawnLocation.Z += 90.0f;
 
-		TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+		FRotator CharacterSpawnRotator = _CameraRotation;
+		CharacterSpawnRotator.Pitch = 0.0f;
+		CharacterSpawnRotator.Yaw += -10.0f; // 퍼터 -10
 
-		UWorld* World = GetWorld();
-		World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 3.0f, false);
+		AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+
+		if (GolfSimulatorCharacter != nullptr)
+		{
+			GolfSimulatorCharacter->SetPutterAnimation();
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate;
+
+			TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+
+			UWorld* World = GetWorld();
+			World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 2.25f, false); // 퍼터 2.25
+		}
+	}
+	else if (_Speed <= 1500.0f && _Angle >= 40.0f)
+	{
+		// 웨지
+
+		FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -75.0f, -0.0f)); // 웨지 -75 (z 0)
+		CharacterSpawnLocation.Z += 90.0f;
+
+		FRotator CharacterSpawnRotator = _CameraRotation;
+		CharacterSpawnRotator.Pitch = 0.0f;
+		CharacterSpawnRotator.Yaw += 90.0f; // 웨지 90
+
+		AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+
+		if (GolfSimulatorCharacter != nullptr)
+		{
+			GolfSimulatorCharacter->SetWedgeAnimation();
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate;
+
+			TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+
+			UWorld* World = GetWorld();
+			World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 10.2f, false); // 웨지 10.2
+		}
+	}
+	else if (_Speed < 2500.0f)
+	{
+		// 아이언
+
+		FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -95.0f, -0.0f)); // 아이언 -95 (z 0)
+		CharacterSpawnLocation.Z += 90.0f;
+
+		FRotator CharacterSpawnRotator = _CameraRotation;
+		CharacterSpawnRotator.Pitch = 0.0f;
+		CharacterSpawnRotator.Yaw += 30.0f; // 아이언 30
+
+		AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+
+		if (GolfSimulatorCharacter != nullptr)
+		{
+			GolfSimulatorCharacter->SetIronAnimation();
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate;
+
+			TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+
+			UWorld* World = GetWorld();
+			World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 3.15f, false); // 아이언 3.15
+		}
+	}
+	else if (_Speed < 3500.0f)
+	{
+		// 하이브리드
+
+		FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -100.0f, -0.0f)); // 하이브리드 -100 (z 0)
+		CharacterSpawnLocation.Z += 90.0f;
+
+		FRotator CharacterSpawnRotator = _CameraRotation;
+		CharacterSpawnRotator.Pitch = 0.0f;
+		CharacterSpawnRotator.Yaw += 30.0f; // 하이브리드 30
+
+		AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+
+		if (GolfSimulatorCharacter != nullptr)
+		{
+			GolfSimulatorCharacter->SetHybrideAnimation();
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate;
+
+			TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+
+			UWorld* World = GetWorld();
+			World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 3.07f, false); // 하이브리드 3.07
+		}
+	}
+	else
+	{
+		// 드라이버
+
+		FVector CharacterSpawnLocation = GetActorLocation() + FTransform(_CameraRotation).TransformVector(FVector(0.0f, -130.0f, -5.0f)); // 드라이버 -130
+		CharacterSpawnLocation.Z += 90.0f;
+
+		FRotator CharacterSpawnRotator = _CameraRotation;
+		CharacterSpawnRotator.Pitch = 0.0f;
+		CharacterSpawnRotator.Yaw += 30.0f; // 드라이버 30
+
+		AGolfSimulatorCharacter* GolfSimulatorCharacter = GetWorld()->SpawnActor<AGolfSimulatorCharacter>(GolfSimulatorCharacterBPClass, CharacterSpawnLocation, CharacterSpawnRotator, SpawnParameters);
+
+		if (GolfSimulatorCharacter != nullptr)
+		{
+			GolfSimulatorCharacter->SetDriverAnimation();
+
+			FTimerHandle TimerHandle;
+			FTimerDelegate TimerDelegate;
+
+			TimerDelegate.BindUFunction(this, "SpawnProjectile", _CameraRotation, _Angle, _Speed);
+
+			UWorld* World = GetWorld();
+			World->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 2.98f, false); // 드라이버 2.98
+		}
 	}
 }
 

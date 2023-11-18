@@ -41,9 +41,13 @@ public:
 	AGolfSimulatorCharacter();
 
 protected:
-	UStaticMesh* GolfClubObject;
-
 	UStaticMeshComponent* StaticMeshComponent;
+
+	UStaticMesh* HybrideObject;
+
+	UStaticMesh* PutterObject;
+
+	UStaticMesh* IronObject;
 
 protected:
 
@@ -72,10 +76,34 @@ public:
 
 public:
 	UFUNCTION(Server, Reliable)
-	void SetAnimation1();
+	void SetDriverAnimation();
+
+	UFUNCTION(Server, Reliable)
+	void SetHybrideAnimation();
+
+	UFUNCTION(Server, Reliable)
+	void SetIronAnimation();
+
+	UFUNCTION(Server, Reliable)
+	void SetPutterAnimation();
+
+	UFUNCTION(Server, Reliable)
+	void SetWedgeAnimation();
 
 	UFUNCTION(NetMulticast, Reliable)
-	void PlayAnimation1();
+	void PlayDriverAnimation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayHybrideAnimation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayIronAnimation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayPutterAnimation();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void PlayWedgeAnimation();
 
 };
 

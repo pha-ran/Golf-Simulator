@@ -5,10 +5,34 @@
 
 UGolfAnimInstance::UGolfAnimInstance()
 {
-	Animation1 = false;
+	Driver = false;
+	Hybride = false;
+	Iron = false;
+	Putter = false;
+	Wedge = false;
 }
 
-void UGolfAnimInstance::SetAnimation1()
+void UGolfAnimInstance::SetDriver()
 {
-	Animation1 = true;
+	Driver = true;
+}
+
+void UGolfAnimInstance::SetHybride()
+{
+	Hybride = true;
+}
+
+void UGolfAnimInstance::SetIron()
+{
+	Iron = true;
+}
+
+void UGolfAnimInstance::SetPutter()
+{
+	Putter = true;
+}
+
+void UGolfAnimInstance::SetWedge()
+{
+	Wedge = true;
 }

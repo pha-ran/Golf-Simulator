@@ -16,9 +16,29 @@ public:
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool Animation1;
+	bool Driver;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool Hybride;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool Iron;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool Putter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool Wedge;
 
 public:
-	void SetAnimation1();
+	void SetDriver();
+
+	void SetHybride();
+
+	void SetIron();
+
+	void SetPutter();
+
+	void SetWedge();
 
 };
