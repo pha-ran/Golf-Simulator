@@ -6,9 +6,6 @@
 #include "GameFramework/GameStateBase.h"
 #include "GolfSimulatorGameState.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class GOLFSIMULATOR_API AGolfSimulatorGameState : public AGameStateBase
 {
@@ -27,6 +24,7 @@ public:
 public:
 	FORCEINLINE int GetCurrentTurn() const { return CurrentTurn; }
 
+	UFUNCTION(Server, Reliable)
 	void NextTurn();
 	
 };

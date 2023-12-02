@@ -27,6 +27,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UTextBlock* Angle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* Code;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UTextBlock* Hit;
+
 protected:
 	virtual void NativeOnInitialized() override;
 
@@ -40,5 +46,9 @@ public:
 	void SetSpeedText(float _Speed);
 
 	void SetAngleText(double _Angle);
+
+	void SetCodeText(FString _Code);
+
+	void SetHitText(int32 _Hit);
 	
 };

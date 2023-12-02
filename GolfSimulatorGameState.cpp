@@ -18,7 +18,7 @@ void AGolfSimulatorGameState::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 	DOREPLIFETIME(AGolfSimulatorGameState, CurrentTurn);
 }
 
-void AGolfSimulatorGameState::NextTurn()
+void AGolfSimulatorGameState::NextTurn_Implementation()
 {
 	if (!HasAuthority())
 	{

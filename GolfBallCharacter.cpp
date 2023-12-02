@@ -3,6 +3,8 @@
 #include "GolfBallCharacter.h"
 #include "GolfBallProjectile.h"
 #include "GolfSimulatorCharacter.h"
+#include "GolfSimulatorPlayerController.h"
+#include "GolfSimulatorPlayerState.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
@@ -99,6 +101,10 @@ AGolfBallCharacter::AGolfBallCharacter()
 	SetActorHiddenInGame(true);
 
 	bPredict = false;
+
+	Code = "";
+
+	Hit = 0;
 }
 
 void AGolfBallCharacter::Look(const FInputActionValue& Value)
@@ -242,11 +248,7 @@ void AGolfBallCharacter::StartSwing()
 		UWorld* World = GetWorld();
 		World->GetTimerManager().SetTimer(SwingTimer, this, &AGolfBallCharacter::StopSwing, SwingRate, false);
 
-		FVector CameraLocation;
-		FRotator CameraRotation;
-		GetActorEyesViewPoint(CameraLocation, CameraRotation);
-
-		SpawnCharacter(CameraRotation, Angle, Speed);
+		PostGetSwingData();
 	}
 }
 
@@ -414,6 +416,110 @@ void AGolfBallCharacter::SpawnProjectile_Implementation(FRotator _CameraRotation
 		SpawnedProjectile->Setup(Direction, _Speed);
 		
 		SetActorHiddenInGame(true);
+	}
+}
+
+void AGolfBallCharacter::PostGetSwingData()
+{
+	FHttpRequestRef Request = FHttpModule::Get().CreateRequest();
+	Request->OnProcessRequestComplete().BindUObject(this, &AGolfBallCharacter::OnSwingDataReceived);
+
+	TSharedRef<FJsonObject> JsonObject = MakeShared<FJsonObject>();
+	AGolfSimulatorPlayerState* GolfSimulatorPlayerState = Cast<AGolfSimulatorPlayerState>(GetPlayerState());
+
+	if (GolfSimulatorPlayerState != nullptr)
+	{
+		FString Name = GolfSimulatorPlayerState->GetPlayerName();
+		Code = Name.Mid(Name.Len() - 4, 4);
+
+		JsonObject->SetStringField("code", Code);
+
+		FString RequestBody;
+		TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&RequestBody);
+		FJsonSerializer::Serialize(JsonObject, Writer);
+
+		Request->SetURL("");
+		Request->SetVerb("POST");
+		Request->SetHeader("Content-Type", "application/json");
+		Request->SetContentAsString(RequestBody);
+		Request->ProcessRequest();
+	}
+}
+
+void AGolfBallCharacter::OnSwingDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessfully)
+{
+	if (bSuccessfully)
+	{
+		TSharedPtr<FJsonObject> JsonObject;
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+		FJsonSerializer::Deserialize(Reader, JsonObject);
+
+		FString Data = JsonObject->GetStringField("data");
+
+		if (Data.Len() > 1 && Data[1] >= '0' && Data[1] <= '2')
+		{
+			Hit = FCString::Atoi(&(Data[1])) + 10;
+		}
+		else
+		{
+			Hit = FCString::Atoi(&(Data[0]));
+		}
+
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+
+		UE_LOG(LogTemp, Display, TEXT("Before Hit : %d, Angle : %f, Rotation Y : %f"), Hit, Angle, CameraRotation.Yaw);
+
+		if (Hit > 0 && Hit <= 3)
+		{
+			Angle += 10;
+		}
+		else
+		{
+			if (Hit >= 10)
+			{
+				if (Angle >= 20)
+				{
+					Angle -= 20;
+				}
+				else
+				{
+					Angle = 0;
+				}
+			}
+			else if (Hit >= 7)
+			{
+				if (Angle >= 10)
+				{
+					Angle -= 10;
+				}
+				else
+				{
+					Angle = 0;
+				}
+			}
+		}
+
+		if (Hit == 1 || Hit == 4 || Hit == 7 || Hit == 10)
+		{
+			CameraRotation.Yaw -= 10;
+		}
+		else if (Hit == 3 || Hit == 6 || Hit == 9 || Hit == 12)
+		{
+			CameraRotation.Yaw += 10;
+		}
+
+		UE_LOG(LogTemp, Display, TEXT("After Hit : %d, Angle : %f, Rotation Y : %f"), Hit, Angle, CameraRotation.Yaw);
+
+		if (Hit > 0)
+		{
+			SpawnCharacter(CameraRotation, Angle, Speed);
+		}
+		else
+		{
+			bSwingIgnore = false;
+		}
 	}
 }
 

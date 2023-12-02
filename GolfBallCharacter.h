@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "InputActionValue.h"
+#include "HTTP.h"
 #include "GolfBallCharacter.generated.h"
 
 UCLASS()
@@ -130,6 +131,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay)
 	bool bPredict;
 
+	FString Code;
+
+	int32 Hit;
+
 protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -175,6 +180,10 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void SpawnProjectile(FRotator _CameraRotation, double _Angle, float _Speed);
 
+	void PostGetSwingData();
+
+	void OnSwingDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessfully);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -194,5 +203,9 @@ public:
 	FORCEINLINE float GetSpeed() const { return Speed; }
 
 	FORCEINLINE double GetAngle() const { return Angle; }
+
+	FORCEINLINE FString GetCode() const { return Code; }
+
+	FORCEINLINE int32 GetHit() const { return Hit; }
 
 };

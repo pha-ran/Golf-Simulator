@@ -59,6 +59,11 @@ void AGolfSimulatorPlayerController::Tick(float DeltaTime)
 		InGameUserWidget->SetSpeedText(GolfBallCharacter->GetSpeed());
 
 		InGameUserWidget->SetAngleText(GolfBallCharacter->GetAngle());
+
+		FString Name = GolfSimulatorPlayerState->GetPlayerName();
+		InGameUserWidget->SetCodeText(Name.Mid(Name.Len() - 4, 4));
+
+		InGameUserWidget->SetHitText(GolfBallCharacter->GetHit());
 	}
 }
 

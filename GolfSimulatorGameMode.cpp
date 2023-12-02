@@ -50,7 +50,7 @@ void AGolfSimulatorGameMode::OnPostLogin(AController* NewPlayer)
 		Turn++;
 	}
 
-	if (GolfSimulatorGameState != nullptr && GolfSimulatorGameState->PlayerArray.Num() == 4 && GolfSimulatorGameState->GetCurrentTurn() == 0)
+	if (GolfSimulatorGameState != nullptr && GolfSimulatorGameState->PlayerArray.Num() == 2 && GolfSimulatorGameState->GetCurrentTurn() == 0)
 	{
 		GolfSimulatorGameState->NextTurn();
 	}

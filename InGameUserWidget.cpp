@@ -17,6 +17,10 @@ void UInGameUserWidget::NativeOnInitialized()
 	Speed = Cast<UTextBlock>(GetWidgetFromName(TEXT("SpeedText")));
 
 	Angle = Cast<UTextBlock>(GetWidgetFromName(TEXT("AngleText")));
+
+	Code = Cast<UTextBlock>(GetWidgetFromName(TEXT("CodeText")));
+
+	Hit = Cast<UTextBlock>(GetWidgetFromName(TEXT("HitText")));
 }
 
 void UInGameUserWidget::SetPlayerNameText(int _PlayerTurn)
@@ -66,5 +70,25 @@ void UInGameUserWidget::SetAngleText(double _Angle)
 		FString AngleString = FString::Printf(TEXT("%.0f"), _Angle);
 		FText AngleText = FText::FromString(AngleString);
 		Angle->SetText(AngleText);
+	}
+}
+
+void UInGameUserWidget::SetCodeText(FString _Code)
+{
+	if (Code != nullptr)
+	{
+		FString CodeString = "Code    " + _Code;
+		FText CodeText = FText::FromString(CodeString);
+		Code->SetText(CodeText);
+	}
+}
+
+void UInGameUserWidget::SetHitText(int32 _Hit)
+{
+	if (Hit != nullptr)
+	{
+		FString HitString = FString::Printf(TEXT("Hit    %d"), _Hit);
+		FText HitText = FText::FromString(HitString);
+		Hit->SetText(HitText);
 	}
 }
