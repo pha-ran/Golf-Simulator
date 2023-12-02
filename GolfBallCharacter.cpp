@@ -105,6 +105,8 @@ AGolfBallCharacter::AGolfBallCharacter()
 	Code = "";
 
 	Hit = 0;
+
+	bFinish = false;
 }
 
 void AGolfBallCharacter::Look(const FInputActionValue& Value)
@@ -122,7 +124,7 @@ void AGolfBallCharacter::Look(const FInputActionValue& Value)
 
 void AGolfBallCharacter::Swing(const FInputActionValue& Value)
 {
-	if (bSwingIgnore)
+	if (bSwingIgnore || bFinish)
 	{
 		return;
 	}
@@ -139,7 +141,7 @@ void AGolfBallCharacter::Swing(const FInputActionValue& Value)
 
 void AGolfBallCharacter::Predict(const FInputActionValue& Value)
 {
-	if (bSwingIgnore)
+	if (bSwingIgnore || bFinish)
 	{
 		return;
 	}
@@ -156,7 +158,7 @@ void AGolfBallCharacter::Predict(const FInputActionValue& Value)
 
 void AGolfBallCharacter::AngleUp(const FInputActionValue& Value)
 {
-	if (bSwingIgnore)
+	if (bSwingIgnore || bFinish)
 	{
 		return;
 	}
@@ -173,7 +175,7 @@ void AGolfBallCharacter::AngleUp(const FInputActionValue& Value)
 
 void AGolfBallCharacter::AngleDown(const FInputActionValue& Value)
 {
-	if (bSwingIgnore)
+	if (bSwingIgnore || bFinish)
 	{
 		return;
 	}
@@ -190,7 +192,7 @@ void AGolfBallCharacter::AngleDown(const FInputActionValue& Value)
 
 void AGolfBallCharacter::SpeedUp(const FInputActionValue& Value)
 {
-	if (bSwingIgnore)
+	if (bSwingIgnore || bFinish)
 	{
 		return;
 	}
@@ -207,7 +209,7 @@ void AGolfBallCharacter::SpeedUp(const FInputActionValue& Value)
 
 void AGolfBallCharacter::SpeedDown(const FInputActionValue& Value)
 {
-	if (bSwingIgnore)
+	if (bSwingIgnore || bFinish)
 	{
 		return;
 	}
@@ -248,7 +250,15 @@ void AGolfBallCharacter::StartSwing()
 		UWorld* World = GetWorld();
 		World->GetTimerManager().SetTimer(SwingTimer, this, &AGolfBallCharacter::StopSwing, SwingRate, false);
 
-		PostGetSwingData();
+		//PostGetSwingData();
+
+		// Test
+		FVector CameraLocation;
+		FRotator CameraRotation;
+		GetActorEyesViewPoint(CameraLocation, CameraRotation);
+
+		SpawnCharacter(CameraRotation, Angle, Speed);
+		//
 	}
 }
 
@@ -523,6 +533,16 @@ void AGolfBallCharacter::OnSwingDataReceived(FHttpRequestPtr Request, FHttpRespo
 	}
 }
 
+void AGolfBallCharacter::EndTurn()
+{
+	AGolfSimulatorGameState* GolfSimulatorGameState = Cast<AGolfSimulatorGameState>(GetWorld()->GetGameState());
+
+	if (GolfSimulatorGameState != nullptr)
+	{
+		GolfSimulatorGameState->NextTurn();
+	}
+}
+
 // Called every frame
 void AGolfBallCharacter::Tick(float DeltaTime)
 {
@@ -551,6 +571,8 @@ void AGolfBallCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(AGolfBallCharacter, NextLocationX);
 	DOREPLIFETIME(AGolfBallCharacter, NextLocationY);
 	DOREPLIFETIME(AGolfBallCharacter, NextLocationZ);
+
+	DOREPLIFETIME(AGolfBallCharacter, bFinish);
 }
 
 void AGolfBallCharacter::SetSwingIgnore(bool Ignore)
@@ -568,10 +590,21 @@ void AGolfBallCharacter::SetNextLocation(FVector _Location)
 	}
 }
 
+void AGolfBallCharacter::SetFinish()
+{
+	bFinish = true;
+}
+
 void AGolfBallCharacter::MoveNextLocation_Implementation(FVector _Location)
 {
 	SetActorLocation(_Location);
 	SetActorHiddenInGame(false);
+
+	if (bFinish)
+	{
+		FTimerHandle TimerHandle;
+		GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfBallCharacter::EndTurn, 3.0f, false);
+	}
 }
 
 // Called to bind functionality to input

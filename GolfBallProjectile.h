@@ -49,6 +49,9 @@ protected:
 	UPROPERTY(Replicated)
 	bool InHole;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SetHiddenMulticast();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

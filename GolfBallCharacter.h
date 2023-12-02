@@ -135,6 +135,9 @@ protected:
 
 	int32 Hit;
 
+	UPROPERTY(Replicated)
+	bool bFinish;
+
 protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -184,6 +187,8 @@ protected:
 
 	void OnSwingDataReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccessfully);
 
+	void EndTurn();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -207,5 +212,7 @@ public:
 	FORCEINLINE FString GetCode() const { return Code; }
 
 	FORCEINLINE int32 GetHit() const { return Hit; }
+
+	void SetFinish();
 
 };

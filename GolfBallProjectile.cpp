@@ -85,6 +85,11 @@ AGolfBallProjectile::AGolfBallProjectile()
 	InHole = false;
 }
 
+void AGolfBallProjectile::SetHiddenMulticast_Implementation()
+{
+	SetActorHiddenInGame(true);
+}
+
 // Called when the game starts or when spawned
 void AGolfBallProjectile::BeginPlay()
 {
@@ -197,9 +202,16 @@ void AGolfBallProjectile::OnHoleBeginOverlap()
 
 		if (PlayerController != nullptr)
 		{
-			UE_LOG(LogTemp, Display, TEXT("OnHoleBeginOverlap Player %s"), *(PlayerController->PlayerState->GetPlayerName()));
+			//UE_LOG(LogTemp, Display, TEXT("OnHoleBeginOverlap Player %s"), *(PlayerController->PlayerState->GetPlayerName()));
 			
-			EndTurn();
+			ProjectileMovementComponent->StopMovementImmediately();
+
+			SetHiddenMulticast();
+			GolfBallCharacter->SetFinish();
+			GolfBallCharacter->SetNextLocation(FVector(11060.0f, 2930.0f, 422.5f));
+
+			FTimerHandle TimerHandle;
+			GetWorldTimerManager().SetTimer(TimerHandle, this, &AGolfBallProjectile::EndTurn, 3.0f, false);
 		}
 	}
 }
