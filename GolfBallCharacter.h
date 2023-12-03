@@ -215,4 +215,6 @@ public:
 
 	void SetFinish();
 
+	FORCEINLINE bool GetFinish() const { return bFinish; }
+
 };

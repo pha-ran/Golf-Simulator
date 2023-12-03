@@ -94,9 +94,9 @@ AGolfBallCharacter::AGolfBallCharacter()
 
 	bSwingIgnore = true;
 
-	NextLocationX = -11710.0f;
-	NextLocationY = 14130.0f;
-	NextLocationZ = 338.236f;
+	NextLocationX = 0.0f;
+	NextLocationY = 0.0f;
+	NextLocationZ = 0.0f;
 
 	SetActorHiddenInGame(true);
 

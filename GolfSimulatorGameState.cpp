@@ -24,6 +24,31 @@ void AGolfSimulatorGameState::NextTurn_Implementation()
 	{
 		return;
 	}
+
+	bool FinishAll = true;
+
+	for (APlayerState* PlayerState : PlayerArray)
+	{
+		AGolfBallCharacter* GolfBallCharacter = Cast<AGolfBallCharacter>(PlayerState->GetPawn());
+
+		if (GolfBallCharacter != nullptr)
+		{
+			if (!GolfBallCharacter->GetFinish())
+			{
+				FinishAll = false;
+			}
+		}
+	}
+
+	if (FinishAll)
+	{
+		UWorld* World = GetWorld();
+
+		if (World)
+		{
+			World->ServerTravel("/Game/Maps/GolfHouseMap/House01_F1_H02", true, false);
+		}
+	}
 	
 	for (APlayerState* PlayerState : PlayerArray)
 	{
@@ -44,6 +69,23 @@ void AGolfSimulatorGameState::NextTurn_Implementation()
 		{
 			if (CurrentTurn < GolfSimulatorPlayerState->GetPlayerTurn())
 			{
+				FVector NextLocation = GolfBallCharacter->GetNextLocation();
+
+				if (NextLocation.X == 0.0f && NextLocation.Y == 0.0f && NextLocation.Z == 0.0f)
+				{
+					UWorld* World = GetWorld();
+					FString CurrentMapName = World->GetMapName();
+
+					if (CurrentMapName.Compare("C001_H01") == 0)
+					{
+						GolfBallCharacter->SetNextLocation(FVector(-11710.0f, 14130.0f, 338.236f));
+					}
+					else
+					{
+						GolfBallCharacter->SetNextLocation(FVector(-4450.003527f, -1329.982854f, 1915.496842f));
+					}
+				}
+
 				CurrentTurn = GolfSimulatorPlayerState->GetPlayerTurn();
 				GolfBallCharacter->MoveNextLocation(GolfBallCharacter->GetNextLocation());
 				GolfBallCharacter->SetSwingIgnore(false);
